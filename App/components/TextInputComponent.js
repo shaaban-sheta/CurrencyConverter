@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { Button, StyleSheet, Text, SafeAreaView} from 'react-native';
 import { TextInput } from 'react-native-paper';
-
-import colors from '../constants/colors';
+import { connect } from 'react-redux';
+import {changeFromCode, changeFromValue, changeToCode, changeToValue} from "../actions";
 
 const styles = StyleSheet.create({
     androidSafeArea: {
@@ -26,10 +26,18 @@ const styles = StyleSheet.create({
     },
 });
 
-export class TextInputComponent extends Component {
+class TextInputComponent extends Component {
     constructor(props) {
         super(props);
     }
+
+    onChangeText = (value) => {
+        if(this.props.title == "From")
+            this.props.changeFromValue(value)
+        else if(this.props.title == "To")
+            this.props.changeToValue(value)
+    }
+
     render() {
         return (
             <SafeAreaView style={styles.androidSafeArea}>
@@ -41,9 +49,23 @@ export class TextInputComponent extends Component {
                     keyboardType="numeric"
                     disabled={this.props.disabled}
                     mode="outlined"
+                    value={this.props.value}
+                    onChangeText={text => this.onChangeText(text)}
                 />
                 <Button title={this.props.currencyCode} onPress={this.props.onPress}/>
             </SafeAreaView>
         );
     }
 }
+
+// @ts-ignore
+const mapStateToProps = (state) => ({
+    state: state
+});
+
+const mapDispatchToProps = {
+    changeFromValue,
+    changeToValue
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(TextInputComponent)

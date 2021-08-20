@@ -1,9 +1,9 @@
-import {FROM_VALUE_CHANGE, FROM_CODE_CHANGE, TO_VALUE_CHANGE, TO_CODE_CHANGE} from '../constants/index';
+import {FROM_VALUE_CHANGE, FROM_CODE_CHANGE, TO_VALUE_CHANGE, TO_CODE_CHANGE, RATE_CHANGE} from '../constants/index';
 
-export function changeFromValue(value) {
+export function changeFromValue(fromValue) {
     return {
         type: FROM_VALUE_CHANGE,
-        payload: value
+        payload: fromValue
     }
 }
 
@@ -25,5 +25,12 @@ export function changeToCode(toCode) {
     return {
         type: TO_CODE_CHANGE,
         payload: toCode
+    }
+}
+
+export function changeRate(changeRateValue) {
+    return {
+        type: RATE_CHANGE,
+        payload: changeRateValue
     }
 }

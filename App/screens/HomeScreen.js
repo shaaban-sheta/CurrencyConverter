@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { SafeAreaView, StyleSheet, Platform} from 'react-native';
-import { TextInputComponent } from '../components/TextInputComponent';
+import TextInputComponent from '../components/TextInputComponent';
 import { connect } from 'react-redux';
-import {FROM_VALUE_CHANGE, FROM_CODE_CHANGE, TO_VALUE_CHANGE, TO_CODE_CHANGE} from '../constants/index';
-import { bindActionCreators } from 'redux';
+import {changeFromCode, changeFromValue, changeToCode, changeToValue} from "../actions";
 
 const styles = StyleSheet.create({
   androidSafeArea: {
@@ -15,24 +14,46 @@ const styles = StyleSheet.create({
 },
 });
 
-export class HomeScreen extends Component {
+class HomeScreen extends Component {
 
   constructor(props) {
     super(props);
   }
 
   render() {
-    const { FromCode, ToCode } = this.props.route.params;
+
+    console.log(this.props.state)
+    const {currencyConverter} = this.props.state
 
     return (
       <SafeAreaView style={styles.androidSafeArea}>
-        <TextInputComponent title = "From" currencyCode={FromCode} disabled={false}
+        <TextInputComponent title = "From"
+                            value = {currencyConverter.FromValue + ""}
+                            currencyCode={currencyConverter.FromCode}
+                            disabled={false}
                             onPress={() => this.props.navigation.navigate('CurrencyCodes',
                                 {codeType: "FromCode"})}  />
-        <TextInputComponent title = "To    " currencyCode={ToCode} disabled={true}
+        <TextInputComponent title = "To"
+                            value = {currencyConverter.ToValue + ""}
+                            currencyCode={currencyConverter.ToCode}
+                            disabled={false}
                             onPress={() => this.props.navigation.navigate('CurrencyCodes',
                                 {codeType: "ToCode"})}  />
       </SafeAreaView>
     );
   }
 }
+
+// @ts-ignore
+const mapStateToProps = (state) => ({
+  state: state
+});
+
+const mapDispatchToProps = {
+  changeFromValue,
+  changeToValue,
+  changeFromCode,
+  changeToCode
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(HomeScreen)

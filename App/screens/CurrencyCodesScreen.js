@@ -1,7 +1,9 @@
 import React, {Component} from "react";
 import {TouchableOpacity, SafeAreaView, FlatList, Text} from 'react-native';
+import {changeFromCode, changeToCode} from '../actions/index';
+import {connect} from 'react-redux';
 
-export class CurrencyCodesScreen extends Component {
+class CurrencyCodesScreen extends Component {
 
   constructor(props) {
     super(props);
@@ -13,6 +15,12 @@ export class CurrencyCodesScreen extends Component {
 
   onPressAction = (itemName) => {
     const { codeType } = this.props.route.params;
+    if(codeType == "FromCode")
+      this.props.changeFromCode(itemName);
+    else if(codeType == "ToCode")
+      this.props.changeToCode(itemName);
+
+
     this.props.navigation.navigate('Home',
         {[codeType]: itemName});
   }
@@ -61,3 +69,10 @@ export class CurrencyCodesScreen extends Component {
     );
   }
 }
+
+const mapDispatchToProps = {
+  changeFromCode,
+  changeToCode
+};
+
+export default connect(null,mapDispatchToProps)(CurrencyCodesScreen)
