@@ -1,6 +1,7 @@
 import React, {Component} from "react";
-import {TouchableOpacity, SafeAreaView, FlatList, Text} from 'react-native';
-import {changeFromCode, changeToCode} from '../actions/index';
+import {TouchableOpacity, SafeAreaView, FlatList, Text, ToastAndroid} from 'react-native';
+import {changeFromCode, changeToCode, changeRate} from '../actions/index';
+import {CHANGE_RATE_URL, CURRENCY_CODES_URL} from '../constants/index'
 import {connect} from 'react-redux';
 
 class CurrencyCodesScreen extends Component {
@@ -20,49 +21,47 @@ class CurrencyCodesScreen extends Component {
     else if(codeType == "ToCode")
       this.props.changeToCode(itemName);
 
+    this.getChangeRate();
 
     this.props.navigation.navigate('Home',
         {[codeType]: itemName});
   }
 
   renderItem = ({item}) => {
-    return <TouchableOpacity onPress={() => this.onPressAction(item)}><Text>{item}</Text></TouchableOpacity>
+    const key = Object.keys(item)[0];
+    return <TouchableOpacity onPress={() => this.onPressAction(item)}>
+      <Text>{item[key].currencyId}</Text>
+      <Text>{item[key].currencyName}</Text>
+    </TouchableOpacity>
   }
 
   myKeyExtractor = (item) => {
     return item
   }
 
-  loadCurrencyCodes = () => {
-    fetch('https://v6.exchangerate-api.com/v6/b34fc30d44002778bd7c9d66/codes')
-      .then((response) => response.json())
-      .then((json) => {
-        this.setState({ data: json.supported_codes });
-      })
-      .catch((error) => console.error(error))
-      .finally(() => {
-        this.setState({ isLoading: false });
-      });
-  }
-
-  getCol = (matrix, col) => {
-    let column = [];
-    for(let i=0; i<matrix.length; i++){
-       column.push(matrix[i][col]);
-    }
-    return column;
+  getChangeRate() {
+    const {currencyConverter} = this.props.state;
+    let changeRateKey = currencyConverter.FromCode.concat('_', currencyConverter.ToCode);
+    let apiUrl = CHANGE_RATE_URL.concat(changeRateKey);
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((json) => {
+          console.log(json);
+          let changeRateValue = json[changeRateKey];
+          console.log(changeRateValue);
+          this.props.changeRate(changeRateValue);
+        })
+        .catch((error) => console.error(error))
+        .finally(() => {
+          this.setState({isLoading: false});
+        });
   }
 
   render() {
-   /* this.loadCurrencyCodes();
-    const { data } = this.state;
-    let currencyCodes = this.getCol(data,0);*/
-    let currencyCodes = ["AED","AFN","AMD","ANG","AOA","AWG","BBD","SAR","EGP"];
-
     return (
       <SafeAreaView>
         <FlatList
-            data={currencyCodes}
+            data={this.props.state.currencyConverter.currencyCodes}
             renderItem={this.renderItem}
             keyExtractor={this.myKeyExtractor}/>
       </SafeAreaView>
@@ -70,9 +69,15 @@ class CurrencyCodesScreen extends Component {
   }
 }
 
+// @ts-ignore
+const mapStateToProps = (state) => ({
+  state: state
+});
+
 const mapDispatchToProps = {
   changeFromCode,
-  changeToCode
+  changeToCode,
+  changeRate
 };
 
-export default connect(null,mapDispatchToProps)(CurrencyCodesScreen)
+export default connect(mapStateToProps,mapDispatchToProps)(CurrencyCodesScreen)

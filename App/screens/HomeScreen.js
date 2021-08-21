@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { SafeAreaView, StyleSheet, Platform} from 'react-native';
+import {SafeAreaView, StyleSheet, Platform, ToastAndroid} from 'react-native';
 import TextInputComponent from '../components/TextInputComponent';
 import { connect } from 'react-redux';
-import {changeFromCode, changeFromValue, changeToCode, changeToValue} from "../actions";
+import {changeFromCode, changeFromValue, changeToCode, changeToValue,loadCurrencyCodes} from "../actions";
+import {CURRENCY_CODES_URL} from "../constants/index";
 
 const styles = StyleSheet.create({
   androidSafeArea: {
@@ -20,25 +21,59 @@ class HomeScreen extends Component {
     super(props);
   }
 
-  render() {
-
-    console.log(this.props.state)
+  navigateToCurrencyCodes(codeType) {
     const {currencyConverter} = this.props.state
+    if (currencyConverter.currencyCodes == [])
+      this.loadCurrencyCodes();
+    this.props.navigation.navigate('CurrencyCodes', {codeType: codeType});
+  }
 
+  loadCurrencyCodes = () => {
+    console.log("here");
+    return fetch(CURRENCY_CODES_URL)
+        .then((response) => response.json())
+        .then((json) => {
+          /*if (json.status = 400)
+            ToastAndroid.show(json.error, ToastAndroid.SHORT);
+          else {*/
+            let resultJsonObject = json.results;
+            let currencyCodesArr = this.convertJsonToArray(resultJsonObject);
+            this.props.loadCurrencyCodes(currencyCodesArr);
+          //}
+        })
+        .catch((error) => console.error(error))
+        .finally(() => {
+          //ToastAndroid.show("Loading Currency Codes Failed!", ToastAndroid.SHORT);
+        });
+  }
+
+  // @ts-ignore
+  convertJsonToArray = (currencyCodesJsonObj) => {
+    let currencyCodesArr = [];
+    for (const key in currencyCodesJsonObj) {
+      currencyCodesArr.push({[key]: {
+          "currencyId": currencyCodesJsonObj[key].currencyId,
+          "currencyName": currencyCodesJsonObj[key].currencyName
+        }});
+    }
+    return currencyCodesArr;
+  }
+  render() {
+    const {currencyConverter} = this.props.state
     return (
       <SafeAreaView style={styles.androidSafeArea}>
         <TextInputComponent title = "From"
                             value = {currencyConverter.FromValue + ""}
                             currencyCode={currencyConverter.FromCode}
                             disabled={false}
-                            onPress={() => this.props.navigation.navigate('CurrencyCodes',
-                                {codeType: "FromCode"})}  />
+                            onPress={() => this.navigateToCurrencyCodes("FromCode")}  />
         <TextInputComponent title = "To"
                             value = {currencyConverter.ToValue + ""}
                             currencyCode={currencyConverter.ToCode}
                             disabled={false}
-                            onPress={() => this.props.navigation.navigate('CurrencyCodes',
-                                {codeType: "ToCode"})}  />
+                            onPress={() => this.navigateToCurrencyCodes("ToCode")}  />
+
+
       </SafeAreaView>
     );
   }
@@ -53,7 +88,8 @@ const mapDispatchToProps = {
   changeFromValue,
   changeToValue,
   changeFromCode,
-  changeToCode
+  changeToCode,
+  loadCurrencyCodes
 };
 
 export default connect(mapStateToProps,mapDispatchToProps)(HomeScreen)

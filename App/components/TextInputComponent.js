@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Button, StyleSheet, Text, SafeAreaView} from 'react-native';
+import {Button, StyleSheet, SafeAreaView, Platform} from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { connect } from 'react-redux';
-import {changeFromCode, changeFromValue, changeToCode, changeToValue} from "../actions";
+import {changeFromValue, changeToValue} from "../actions";
 
 const styles = StyleSheet.create({
     androidSafeArea: {

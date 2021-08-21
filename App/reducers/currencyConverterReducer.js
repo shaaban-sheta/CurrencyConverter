@@ -1,11 +1,12 @@
-import {FROM_VALUE_CHANGE, FROM_CODE_CHANGE, TO_VALUE_CHANGE, TO_CODE_CHANGE, RATE_CHANGE} from '../constants/index';
+import {FROM_VALUE_CHANGE, FROM_CODE_CHANGE, TO_VALUE_CHANGE, TO_CODE_CHANGE, RATE_CHANGE, CURRENCY_CODES_LOAD} from '../constants/index';
 
 const initialState = {
     FromCode: "SAR",
     ToCode: "EGP",
     FromValue: 0.0,
     ToValue: 0.0,
-    changeRate: 1
+    changeRate: 1,
+    currencyCodes: []
 };
 
 const currencyConverterReducer = (state = initialState, action) => {
@@ -37,6 +38,11 @@ const currencyConverterReducer = (state = initialState, action) => {
                 ...state,
                 changeRate: action.payload,
                 ToValue: action.payload * state.FromValue
+            };
+        case CURRENCY_CODES_LOAD:
+            return {
+                ...state,
+                currencyCodes: action.payload
             };
         default:
             return state;
