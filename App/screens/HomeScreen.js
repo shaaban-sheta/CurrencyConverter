@@ -23,7 +23,7 @@ class HomeScreen extends Component {
 
   navigateToCurrencyCodes(codeType) {
     const {currencyConverter} = this.props.state
-    if (currencyConverter.currencyCodes == [])
+    if (currencyConverter.currencyCodes.length == 0)
       this.loadCurrencyCodes();
     this.props.navigation.navigate('CurrencyCodes', {codeType: codeType});
   }
@@ -33,17 +33,17 @@ class HomeScreen extends Component {
     return fetch(CURRENCY_CODES_URL)
         .then((response) => response.json())
         .then((json) => {
-          /*if (json.status = 400)
+          if (json.status == 400)
             ToastAndroid.show(json.error, ToastAndroid.SHORT);
-          else {*/
+          else {
             let resultJsonObject = json.results;
             let currencyCodesArr = this.convertJsonToArray(resultJsonObject);
             this.props.loadCurrencyCodes(currencyCodesArr);
-          //}
+          }
         })
-        .catch((error) => console.error(error))
-        .finally(() => {
-          //ToastAndroid.show("Loading Currency Codes Failed!", ToastAndroid.SHORT);
+        .catch((error) => {
+          console.error(error);
+          ToastAndroid.show("Loading Currency Codes Failed!", ToastAndroid.SHORT);
         });
   }
 
@@ -72,14 +72,11 @@ class HomeScreen extends Component {
                             currencyCode={currencyConverter.ToCode}
                             disabled={false}
                             onPress={() => this.navigateToCurrencyCodes("ToCode")}  />
-
-
       </SafeAreaView>
     );
   }
 }
 
-// @ts-ignore
 const mapStateToProps = (state) => ({
   state: state
 });

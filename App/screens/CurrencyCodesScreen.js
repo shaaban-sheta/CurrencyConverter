@@ -1,8 +1,32 @@
 import React, {Component} from "react";
-import {TouchableOpacity, SafeAreaView, FlatList, Text, ToastAndroid} from 'react-native';
+import {TouchableOpacity, SafeAreaView, FlatList, Text, ToastAndroid, StyleSheet, Platform, View} from 'react-native';
 import {changeFromCode, changeToCode, changeRate} from '../actions/index';
-import {CHANGE_RATE_URL, CURRENCY_CODES_URL} from '../constants/index'
+import {CHANGE_RATE_URL} from '../constants/index'
 import {connect} from 'react-redux';
+
+const styles = StyleSheet.create({
+  currencyListRowStyle: {
+    flex: 1,
+    flexDirection: "row",
+    alignSelf:'baseline',
+    backgroundColor: '#bbbbb5',
+    padding: 5,
+    marginVertical: 5,
+    marginHorizontal: 10,
+  },
+
+  currencyIdStyle: {
+    flex: 1,
+    flexDirection: "row",
+    alignContent:'flex-start'
+  },
+
+  currencyNameStyle: {
+    flex: 1,
+    flexDirection: "row",
+    alignContent:'flex-end'
+  },
+});
 
 class CurrencyCodesScreen extends Component {
 
@@ -29,14 +53,14 @@ class CurrencyCodesScreen extends Component {
 
   renderItem = ({item}) => {
     const key = Object.keys(item)[0];
-    return <TouchableOpacity onPress={() => this.onPressAction(item)}>
-      <Text>{item[key].currencyId}</Text>
-      <Text>{item[key].currencyName}</Text>
+    return <TouchableOpacity style={styles.currencyListRowStyle} onPress={() => this.onPressAction(item[key].currencyId)}>
+      <Text style={styles.currencyIdStyle}>{item[key].currencyId}</Text>
+      <Text style={styles.currencyNameStyle}>{item[key].currencyName}</Text>
     </TouchableOpacity>
   }
 
   myKeyExtractor = (item) => {
-    return item
+    return Object.keys(item)[0];
   }
 
   getChangeRate() {
@@ -46,14 +70,12 @@ class CurrencyCodesScreen extends Component {
     fetch(apiUrl)
         .then((response) => response.json())
         .then((json) => {
-          console.log(json);
           let changeRateValue = json[changeRateKey];
-          console.log(changeRateValue);
           this.props.changeRate(changeRateValue);
         })
-        .catch((error) => console.error(error))
-        .finally(() => {
-          this.setState({isLoading: false});
+        .catch((error) => {
+          console.error(error);
+          ToastAndroid.show("Loading Currency Change Rate Failed!", ToastAndroid.SHORT);
         });
   }
 
@@ -63,13 +85,14 @@ class CurrencyCodesScreen extends Component {
         <FlatList
             data={this.props.state.currencyConverter.currencyCodes}
             renderItem={this.renderItem}
-            keyExtractor={this.myKeyExtractor}/>
+            keyExtractor={this.myKeyExtractor}
+            ItemSeparatorComponent={Platform.OS !== 'android' && (({ highlighted }) => (<View style={styles.separator}/>))}
+        />
       </SafeAreaView>
     );
   }
 }
 
-// @ts-ignore
 const mapStateToProps = (state) => ({
   state: state
 });
