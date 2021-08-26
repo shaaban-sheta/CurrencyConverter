@@ -26,6 +26,10 @@ const styles = StyleSheet.create({
     },
 });
 
+/**
+ * this component used to display and handle user interaction
+ * to change the source/target currency code and value.
+ */
 class TextInputComponent extends Component {
     constructor(props) {
         super(props);
@@ -41,7 +45,6 @@ class TextInputComponent extends Component {
     render() {
         return (
             <SafeAreaView style={styles.androidSafeArea}>
-                
                 <TextInput
                     label={this.props.title}
                     style={styles.input}
@@ -58,7 +61,6 @@ class TextInputComponent extends Component {
     }
 }
 
-// @ts-ignore
 const mapStateToProps = (state) => ({
     state: state
 });

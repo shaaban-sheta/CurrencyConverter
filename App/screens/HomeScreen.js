@@ -2,8 +2,17 @@ import React, { Component } from 'react';
 import {SafeAreaView, StyleSheet, Platform, ToastAndroid} from 'react-native';
 import TextInputComponent from '../components/TextInputComponent';
 import { connect } from 'react-redux';
-import {changeFromCode, changeFromValue, changeToCode, changeToValue,loadCurrencyCodes} from "../actions";
-import {CURRENCY_CODES_URL} from "../constants/index";
+import {
+    changeConversionRate,
+    changeFromCode,
+    changeFromValue,
+    changeToCode,
+    changeToValue,
+    loadCurrencyCodes
+} from "../actions";
+import {CHANGE_RATE_URL, CURRENCY_CODES_URL} from "../constants/index";
+import { ConversionRateComponent } from "../components/ConversionRateComponent"
+import {convertJsonToArray} from "../utils/utils";
 
 const styles = StyleSheet.create({
   androidSafeArea: {
@@ -15,21 +24,36 @@ const styles = StyleSheet.create({
 },
 });
 
+/**
+ * this is the first that we be display to the user
+ * contains two inputTexts for the source and the target values
+ * two buttons for the source and the target currency code.
+ * footer to display the conversion rate
+ */
 class HomeScreen extends Component {
 
   constructor(props) {
     super(props);
   }
 
+    /**
+     * this function used to navigate to the currency codes list to
+     * select another currency code.
+     * @param codeType this parameter used to identify which
+     * currency code button invoked the function(Source or Target).
+     */
   navigateToCurrencyCodes(codeType) {
     const {currencyConverter} = this.props.state
-    if (currencyConverter.currencyCodes.length == 0)
+    if (currencyConverter.CurrencyCodes.length === 0)
       this.loadCurrencyCodes();
     this.props.navigation.navigate('CurrencyCodes', {codeType: codeType});
   }
 
+    /**
+     * this function used to get the currency codes that supported by the API.
+     * @returns {Promise<T>} update currency codes value for the application state.
+     */
   loadCurrencyCodes = () => {
-    console.log("here");
     return fetch(CURRENCY_CODES_URL)
         .then((response) => response.json())
         .then((json) => {
@@ -37,7 +61,7 @@ class HomeScreen extends Component {
             ToastAndroid.show(json.error, ToastAndroid.SHORT);
           else {
             let resultJsonObject = json.results;
-            let currencyCodesArr = this.convertJsonToArray(resultJsonObject);
+            let currencyCodesArr = convertJsonToArray(resultJsonObject);
             this.props.loadCurrencyCodes(currencyCodesArr);
           }
         })
@@ -47,19 +71,31 @@ class HomeScreen extends Component {
         });
   }
 
-  // @ts-ignore
-  convertJsonToArray = (currencyCodesJsonObj) => {
-    let currencyCodesArr = [];
-    for (const key in currencyCodesJsonObj) {
-      currencyCodesArr.push({[key]: {
-          "currencyId": currencyCodesJsonObj[key].currencyId,
-          "currencyName": currencyCodesJsonObj[key].currencyName
-        }});
-    }
-    return currencyCodesArr;
+    /**
+     * this function used to get the conversion rate for the current currency codes.
+     */
+  getConversionRate() {
+    const {currencyConverter} = this.props.state;
+    let conversionRateKey = currencyConverter.FromCode.concat('_', currencyConverter.ToCode);
+    let apiUrl = CHANGE_RATE_URL.concat(conversionRateKey);
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((json) => {
+            console.log(json);
+          let conversionRateValue = json[conversionRateKey];
+          this.props.changeConversionRate(conversionRateValue);
+        })
+        .catch((error) => {
+          console.error(error);
+          ToastAndroid.show("Loading Currency Conversion Rate Failed!", ToastAndroid.SHORT);
+        });
   }
+
   render() {
     const {currencyConverter} = this.props.state
+    if (currencyConverter.ConversionRate == 0)
+      this.getConversionRate();
+
     return (
       <SafeAreaView style={styles.androidSafeArea}>
         <TextInputComponent title = "From"
@@ -72,6 +108,10 @@ class HomeScreen extends Component {
                             currencyCode={currencyConverter.ToCode}
                             disabled={false}
                             onPress={() => this.navigateToCurrencyCodes("ToCode")}  />
+
+        <ConversionRateComponent FromCode={currencyConverter.FromCode}
+                                 ToCode={currencyConverter.ToCode}
+                                 ConversionRate={currencyConverter.ConversionRate}/>
       </SafeAreaView>
     );
   }
@@ -86,7 +126,8 @@ const mapDispatchToProps = {
   changeToValue,
   changeFromCode,
   changeToCode,
-  loadCurrencyCodes
+  loadCurrencyCodes,
+  changeConversionRate
 };
 
 export default connect(mapStateToProps,mapDispatchToProps)(HomeScreen)
