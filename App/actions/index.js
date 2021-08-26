@@ -30,7 +30,7 @@ import {FROM_VALUE_CHANGE, FROM_CODE_CHANGE,
 export function changeFromValue(fromValue) {
     return {
         type: FROM_VALUE_CHANGE,
-        payload: fromValue
+        payload: typeof fromValue == "number" ? fromValue.toFixed(2) : fromValue
     }
 }
 
@@ -59,7 +59,7 @@ export function changeFromCode(fromCode) {
 export function changeToValue(toValue) {
     return {
         type: TO_VALUE_CHANGE,
-        payload: toValue
+        payload: typeof toValue == "number" ? toValue.toFixed(2) : toValue
     }
 }
 
@@ -87,7 +87,7 @@ export function changeToCode(toCode) {
 export function changeConversionRate(conversionRateValue) {
     return {
         type: CONVERSION_RATE_CHANGE,
-        payload: conversionRateValue
+        payload: conversionRateValue.toFixed(3)
     }
 }
 

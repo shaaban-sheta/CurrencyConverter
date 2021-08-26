@@ -28,7 +28,7 @@ const currencyConverterReducer = (state = initialState, action) => {
             return {
                 ...state,
                 FromValue: action.payload,
-                ToValue: action.payload * state.ConversionRate
+                ToValue: (action.payload * state.ConversionRate).toFixed(2)
             };
         case FROM_CODE_CHANGE:
             return {
@@ -38,7 +38,7 @@ const currencyConverterReducer = (state = initialState, action) => {
         case TO_VALUE_CHANGE:
             return {
                 ...state,
-                FromValue: action.payload / state.ConversionRate,
+                FromValue: (action.payload / state.ConversionRate).toFixed(2),
                 ToValue: action.payload
             };
         case TO_CODE_CHANGE:
