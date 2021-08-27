@@ -43,9 +43,9 @@ class HomeScreen extends Component {
      * currency code button invoked the function(Source or Target).
      */
   navigateToCurrencyCodes(codeType) {
-    const {currencyConverter} = this.props.state
+    /*const {currencyConverter} = this.props.state
     if (currencyConverter.CurrencyCodes.length === 0)
-      this.loadCurrencyCodes();
+      this.loadCurrencyCodes();*/
     this.props.navigation.navigate('CurrencyCodes', {codeType: codeType});
   }
 
@@ -81,7 +81,6 @@ class HomeScreen extends Component {
     fetch(apiUrl)
         .then((response) => response.json())
         .then((json) => {
-            console.log(json);
           let conversionRateValue = json[conversionRateKey];
           this.props.changeConversionRate(conversionRateValue);
         })
@@ -95,6 +94,8 @@ class HomeScreen extends Component {
     const {currencyConverter} = this.props.state
     if (currencyConverter.ConversionRate == 0)
       this.getConversionRate();
+    if (currencyConverter.CurrencyCodes.length === 0)
+      this.loadCurrencyCodes();
 
     return (
       <SafeAreaView style={styles.androidSafeArea}>

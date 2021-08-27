@@ -50,7 +50,7 @@ const currencyConverterReducer = (state = initialState, action) => {
             return {
                 ...state,
                 ConversionRate: action.payload,
-                ToValue: action.payload * state.FromValue
+                ToValue: (action.payload * state.FromValue).toFixed(2)
             };
         case CURRENCY_CODES_LOAD:
             return {

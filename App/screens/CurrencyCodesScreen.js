@@ -3,6 +3,7 @@ import {SafeAreaView, FlatList} from 'react-native';
 import {changeFromCode, changeToCode, changeConversionRate} from '../actions/index';
 import {connect} from 'react-redux';
 import {CurrencyCodeRowItem} from '../components/CurrencyCodeRowItem';
+import {CurrencyCodesListSearch} from '../components/CurrencyCodesListSearch'
 
 /**
  * this is the screen that will display the currencies codes list.
@@ -12,8 +13,32 @@ class CurrencyCodesScreen extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      data: this.props.state.currencyConverter.CurrencyCodes
+    };
     this.onPressAction = this.onPressAction.bind(this);
+    this.searchFilterFunction = this.searchFilterFunction.bind(this);
   }
+
+  /**
+   * This function used to filter the currencies code based on the user input.
+   * @param text the value entered in the search bar
+   */
+  searchFilterFunction(userInput) {
+    if (userInput) {
+      const filteredCurrencyCodes = this.props.state.currencyConverter.CurrencyCodes.filter(
+          function (currencyObj) {
+            const key = Object.keys(currencyObj)[0];
+            const currencyId = currencyObj[key].currencyId.toUpperCase();
+            const userInputUCase = userInput.toUpperCase();
+            return currencyId.indexOf(userInputUCase) > -1;
+          }
+      );
+      this.setState({data: filteredCurrencyCodes});
+    } else {
+      this.setState({data: this.props.state.currencyConverter.CurrencyCodes});
+    }
+  };
 
   /**
    * the function that will handle the currency code selection.
@@ -62,8 +87,9 @@ class CurrencyCodesScreen extends Component {
   render() {
     return (
       <SafeAreaView>
+        <CurrencyCodesListSearch searchFilterFunction={this.searchFilterFunction}/>
         <FlatList
-            data={this.props.state.currencyConverter.CurrencyCodes}
+            data={this.state.data}
             renderItem={this.renderItem}
             keyExtractor={this.myKeyExtractor}
         />
